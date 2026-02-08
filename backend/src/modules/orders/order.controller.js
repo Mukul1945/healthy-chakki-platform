@@ -52,7 +52,7 @@ export const getMyOrders = async (req, res) => {
 // ADMIN: Get all orders
 export const getAllOrders = async (req, res) => {
   const orders = await Order.find()
-    .populate("user", "phone")
+    .populate("user", "name email phone")
     .sort("-createdAt");
 
   res.json({

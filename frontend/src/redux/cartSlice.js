@@ -1,15 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  items: typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem("cartItems")) || []
-    : [],
-};
+// Always start with empty array so server and client first paint match (avoids hydration error).
+// Cart is restored from localStorage in AuthCartRestorer after mount.
+const initialState = { items: [] };
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    rehydrateCart(state, action) {
+      state.items = action.payload || [];
+    },
     addToCart(state, action) {
       const item = action.payload;
       const existing = state.items.find(i => i.productId === item.productId);
@@ -46,6 +47,7 @@ const cartSlice = createSlice({
 });
 
 export const {
+  rehydrateCart,
   addToCart,
   removeFromCart,
   updateQuantity,

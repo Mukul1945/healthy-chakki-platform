@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/cartSlice";
+import { placeOrder as placeOrderApi } from "@/services/order.service";
 
 const PAYMENT_METHODS = [
   { id: "cod", label: "Cash on Delivery (COD)", description: "Pay when you receive your order" },
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.items);
+  const token = useSelector((state) => state.auth.token);
 
   const [form, setForm] = useState({
     name: "",
@@ -25,13 +27,18 @@ export default function CheckoutPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  // Redirect if cart is empty (and we haven't just placed an order)
+  // Require login to checkout
   useEffect(() => {
+    if (!token) {
+      router.replace("/login?returnUrl=" + encodeURIComponent("/checkout"));
+      return;
+    }
     if (items.length === 0 && !orderPlaced) {
       router.replace("/cart");
     }
-  }, [items.length, orderPlaced, router]);
+  }, [token, items.length, orderPlaced, router]);
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
@@ -46,16 +53,39 @@ export default function CheckoutPage() {
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim()) {
       return;
     }
+    setSubmitError("");
     setIsSubmitting(true);
 
-    // TODO: Call order API (Razorpay flow for online, or create order for COD)
-    await new Promise((r) => setTimeout(r, 800));
-
-    setIsSubmitting(false);
-    setOrderPlaced(true);
-    dispatch(clearCart());
+    try {
+      const paymentMethod = form.paymentMethod === "online" ? "ONLINE" : "COD";
+      await placeOrderApi({
+        items: items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          variant: item.variant,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        deliveryAddress: {
+          name: form.name.trim(),
+          phone: form.phone.trim(),
+          address: form.address.trim(),
+          landmark: form.landmark?.trim() || "",
+          city: "Greater Noida",
+          pincode: "",
+        },
+        paymentMethod,
+      });
+      setOrderPlaced(true);
+      dispatch(clearCart());
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || err.message || "Failed to place order");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  if (!token) return null;
   if (items.length === 0 && !orderPlaced) {
     return (
       <section className="section">
@@ -81,7 +111,10 @@ export default function CheckoutPage() {
             Thank you for your order. We&apos;ll deliver within 2–3 hours. We may call you on the number you provided.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/products" className="btn-primary">
+            <Link href="/orders" className="btn-primary">
+              View order status
+            </Link>
+            <Link href="/products" className="btn-secondary">
               Continue Shopping
             </Link>
             <Link href="/" className="btn-secondary">
@@ -106,6 +139,11 @@ export default function CheckoutPage() {
 
       <section className="section">
         <form onSubmit={handleSubmit} className="container-wide">
+          {submitError && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 text-red-700 border border-red-200">
+              {submitError}
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Delivery details + Payment */}
             <div className="lg:col-span-2 space-y-8">

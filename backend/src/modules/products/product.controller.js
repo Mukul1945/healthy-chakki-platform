@@ -52,3 +52,28 @@ export const getProducts = async (req, res) => {
     data: products,
   });
 };
+
+// ADMIN: Get all products (active + inactive)
+export const getAllProducts = async (req, res) => {
+  const products = await Product.find().sort("-createdAt");
+  res.json({
+    success: true,
+    data: products,
+  });
+};
+
+// ADMIN: Delete product
+export const deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Product deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

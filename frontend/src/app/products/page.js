@@ -1,32 +1,41 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import ProductCard from "@/components/product/ProductCard";
-
-const mockProducts = [
-  {
-    _id: "1",
-    name: "Wheat Atta",
-    price: 60,
-    variant: "1kg",
-    description: "Fresh chakki-ground wheat flour.",
-  },
-  {
-    _id: "2",
-    name: "Bajra Atta",
-    price: 80,
-    variant: "1kg",
-    description: "Pure bajra (pearl millet) flour.",
-  },
-  {
-    _id: "3",
-    name: "Jowar Atta",
-    price: 75,
-    variant: "1kg",
-    description: "Fresh jowar (sorghum) flour.",
-  },
-];
+import { getProducts } from "@/services/product.service";
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getProducts()
+      .then((data) => {
+        if (!cancelled) setProducts(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          const msg = err.response?.data?.message || err.message || "Failed to load products";
+          const is503 = err.response?.status === 503;
+          const hint = !err.response
+            ? " Set NEXT_PUBLIC_API_URL in .env.local (e.g. http://localhost:5000/api) and ensure backend is running."
+            : is503
+            ? " Fix MongoDB connection (e.g. whitelist your IP in Atlas) and restart the backend."
+            : "";
+          setError(msg + hint);
+          setProducts([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <>
       <section className="bg-white border-b border-stone-200">
@@ -40,11 +49,31 @@ export default function ProductsPage() {
 
       <section className="section">
         <div className="container-wide">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockProducts.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+          {loading && (
+            <div className="text-center py-12 text-stone-500">
+              Loading products...
+            </div>
+          )}
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 mb-6">
+              {error}
+              <p className="text-sm mt-1">
+                Ensure backend is running and NEXT_PUBLIC_API_URL is set (e.g. http://localhost:5000/api).
+              </p>
+            </div>
+          )}
+          {!loading && !error && products.length === 0 && (
+            <div className="text-center py-12 text-stone-500">
+              No products yet. Add some from the admin panel.
+            </div>
+          )}
+          {!loading && products.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>

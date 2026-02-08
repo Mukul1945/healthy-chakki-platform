@@ -60,7 +60,10 @@ const orderSchema = new mongoose.Schema(
     },
 
     deliveryAddress: {
+      name: String,
+      phone: String,
       address: String,
+      landmark: String,
       city: String,
       pincode: String,
     },

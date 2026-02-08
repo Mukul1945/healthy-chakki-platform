@@ -1,12 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  user: null,
-  token:
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null,
-};
+// Always start with null so server and client first paint match (avoids hydration error).
+// Auth is restored from localStorage in AuthCartRestorer after mount.
+const initialState = { token: null, user: null };
 
 const authSlice = createSlice({
   name: "auth",
@@ -15,14 +11,16 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
-
       localStorage.setItem("token", action.payload.token);
+      if (action.payload.user) {
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+      }
     },
-
     logout: (state) => {
       state.token = null;
       state.user = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
 });

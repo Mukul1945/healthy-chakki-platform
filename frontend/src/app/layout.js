@@ -1,8 +1,7 @@
 import "./globals.css";
 import { Outfit } from "next/font/google";
 import Providers from "../redux/Providers";
-import Navbar from "@/components/common/Navbar";
-import Footer from "@/components/common/Footer";
+import ConditionalLayout from "../components/common/ConditionalLayout";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -20,9 +19,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={outfit.variable}>
       <body className="min-h-screen flex flex-col bg-[#fffbeb]">
         <Providers>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </Providers>
       </body>
     </html>

@@ -1,7 +1,16 @@
+import bcrypt from "bcryptjs";
 import User from "../users/user.model.js";
 import { generateOTP } from "../../utils/otp.js";
 import { successResponse } from "../../utils/response.js";
 import { generateToken } from "./auth.service.js";
+
+function sanitizeUser(user) {
+  const obj = user.toObject ? user.toObject() : user;
+  delete obj.password;
+  delete obj.otp;
+  delete obj.otpExpires;
+  return obj;
+}
 
 // SEND OTP
 export const sendOTP = async (req, res) => {
@@ -65,13 +74,62 @@ export const verifyOTP = async (req, res) => {
     await user.save();
 
     const token = generateToken(user);
-
-    return successResponse(res, { token }, "Login successful");
+    const userData = sanitizeUser(user);
+    return successResponse(res, { token, user: userData }, "Login successful");
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
     });
+  }
+};
+
+// LOGIN (email + password)
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password required" });
+    }
+    const user = await User.findOne({ email }).select("+password");
+    if (!user || !user.password) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+    const token = generateToken(user);
+    const userData = sanitizeUser(user);
+    return successResponse(res, { token, user: userData }, "Login successful");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// REGISTER (name, email, password)
+export const register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password required" });
+    }
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ success: false, message: "Email already registered" });
+    }
+    const user = await User.create({ name: name || email.split("@")[0], email, password });
+    const token = generateToken(user);
+    const userData = sanitizeUser(user);
+    return res.status(201).json({
+      success: true,
+      message: "Registered successfully",
+      data: { token, user: userData },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

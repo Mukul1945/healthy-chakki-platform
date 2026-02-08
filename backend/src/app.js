@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 import routes from "./routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import { requireDb } from "./middlewares/requireDb.middleware.js";
 
 const app = express();
 
@@ -20,8 +21,8 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Routes
-app.use("/api", routes);
+// Routes (require DB so all endpoints fail fast with 503 when MongoDB is down)
+app.use("/api", requireDb, routes);
 
 // Global error handler
 app.use(errorMiddleware);
