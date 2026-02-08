@@ -15,6 +15,10 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     description: String,
+    image: {
+        url: String,
+        publicId: String,
+      },
 
     variants: [variantSchema],
 
