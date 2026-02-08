@@ -1,10 +1,10 @@
 import express from "express";
+import { sendOTP, verifyOTP } from "./auth.controller.js";
+import { otpLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
-// Placeholder auth routes – add login, register, etc. as needed
-router.get("/", (req, res) => {
-  res.json({ message: "Auth routes" });
-});
+router.post("/send-otp", otpLimiter, sendOTP);
+router.post("/verify-otp", otpLimiter, verifyOTP);
 
 export default router;
