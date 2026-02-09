@@ -5,6 +5,7 @@ import productRoutes from "./modules/products/product.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
+
 const router = express.Router();
 
 router.use("/auth", authRoutes);
@@ -15,5 +16,6 @@ router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/invoices", invoiceRoutes);
+
 
 export default router;
