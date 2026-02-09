@@ -5,13 +5,14 @@ import productRoutes from "./modules/products/product.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
+import userRoutes from "./modules/users/user.routes.js";
 
 const router = express.Router();
 
 router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);
 
-
+router.use("/users", userRoutes);
 router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
 router.use("/payments", paymentRoutes);
