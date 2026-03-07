@@ -15,18 +15,23 @@ export default function AuthCartRestorer() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userStr = localStorage.getItem("user");
+    let userObj = null;
+
     if (token && userStr) {
       try {
-        const user = JSON.parse(userStr);
-        dispatch(loginSuccess({ token, user }));
-      } catch {}
+        userObj = JSON.parse(userStr);
+        dispatch(loginSuccess({ token, user: userObj }));
+      } catch { }
     }
-    const cartStr = localStorage.getItem("cartItems");
+
+    const storageKey = userObj ? `cartItems_${userObj._id}` : "cartItems";
+    const cartStr = localStorage.getItem(storageKey);
+
     if (cartStr) {
       try {
         const items = JSON.parse(cartStr);
         if (Array.isArray(items)) dispatch(rehydrateCart(items));
-      } catch {}
+      } catch { }
     }
   }, [dispatch]);
 

@@ -15,10 +15,8 @@ export const adminDashboard = (req, res) => {
 };
 
 async function uploadToCloudinary(buffer, mimetype) {
-  const dataUri = `data:${mimetype || "image/jpeg"};base64,${buffer.toString("base64")}`;
   return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      dataUri,
+    const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: "healthy-chakki/products",
         resource_type: "image",
@@ -28,6 +26,7 @@ async function uploadToCloudinary(buffer, mimetype) {
         resolve({ url: result.secure_url, publicId: result.public_id });
       }
     );
+    uploadStream.end(buffer);
   });
 }
 
@@ -67,8 +66,11 @@ export const addProduct = async (req, res) => {
         const uploaded = await uploadToCloudinary(req.file.buffer, req.file.mimetype);
         image = { url: uploaded.url, publicId: uploaded.publicId };
       } catch (err) {
-        console.error("Cloudinary upload failed:", err.message);
-        // Continue with placeholder so product is still created
+        console.error("Cloudinary upload failed:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Image upload failed. Please try again or check Cloudinary limits.",
+        });
       }
     }
 

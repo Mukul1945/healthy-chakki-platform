@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/authSlice";
+import { rehydrateCart } from "@/redux/cartSlice";
 import { login as loginApi } from "@/services/auth.service";
 
 export default function LoginClient() {
@@ -26,6 +27,32 @@ export default function LoginClient() {
     try {
       const { token, user } = await loginApi(email, password);
       dispatch(loginSuccess({ token, user }));
+
+      // Merge guest cart with user cart
+      const guestCartStr = localStorage.getItem("cartItems");
+      const guestItems = guestCartStr ? JSON.parse(guestCartStr) : [];
+      
+      const userCartKey = `cartItems_${user._id}`;
+      const userCartStr = localStorage.getItem(userCartKey);
+      let userItems = userCartStr ? JSON.parse(userCartStr) : [];
+
+      // Merge items based on product ID
+      if (Array.isArray(guestItems) && guestItems.length > 0) {
+        guestItems.forEach((gItem) => {
+          const existing = userItems.find((u) => u.productId === gItem.productId);
+          if (existing) {
+            existing.quantity += gItem.quantity;
+          } else {
+            userItems.push(gItem);
+          }
+        });
+        // Remove guest cart items once merged to avoid them re-appearing on next logout
+        localStorage.removeItem("cartItems"); 
+      }
+      
+      localStorage.setItem(userCartKey, JSON.stringify(userItems));
+      dispatch(rehydrateCart(userItems));
+
       router.push(returnUrl);
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Login failed");
@@ -345,7 +372,7 @@ export default function LoginClient() {
                         <div className="w-full border-t-2 border-amber-200"></div>
                       </div>
                       <div className="relative flex justify-center text-sm">
-                        <span className="px-6 bg-white text-amber-700 font-bold text-base">New to Fresh Atta?</span>
+                        <span className="px-6 bg-white text-amber-700 font-bold text-base">Don't have an account?</span>
                       </div>
                     </div>
 
@@ -354,7 +381,7 @@ export default function LoginClient() {
                       href={`/signup${returnUrl !== "/" ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ""}`}
                       className="block w-full text-center py-3.5 px-4 border-2 border-amber-600 text-amber-700 font-bold text-lg rounded-xl hover:bg-amber-50 hover:border-amber-700 transition-all duration-200"
                     >
-                      Create an account
+                      Click here
                     </Link>
 
                     {/* Back to Home */}

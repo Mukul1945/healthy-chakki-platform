@@ -4,6 +4,24 @@ import { createSlice } from "@reduxjs/toolkit";
 // Cart is restored from localStorage in AuthCartRestorer after mount.
 const initialState = { items: [] };
 
+// Helper to save cart to the correct local storage key
+const saveCartToStorage = (items) => {
+  if (typeof window !== "undefined") {
+    const userStr = localStorage.getItem("user");
+    let storageKey = "cartItems";
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        if (userObj?._id) {
+          storageKey = `cartItems_${userObj._id}`;
+        }
+      } catch (e) { }
+    }
+    localStorage.setItem(storageKey, JSON.stringify(items));
+  }
+};
+
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
@@ -21,14 +39,14 @@ const cartSlice = createSlice({
         state.items.push(item);
       }
 
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
+      saveCartToStorage(state.items);
     },
 
     removeFromCart(state, action) {
       state.items = state.items.filter(
         item => item.productId !== action.payload
       );
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
+      saveCartToStorage(state.items);
     },
 
     updateQuantity(state, action) {
@@ -36,12 +54,24 @@ const cartSlice = createSlice({
       const item = state.items.find(i => i.productId === productId);
       if (item) item.quantity = quantity;
 
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
+      saveCartToStorage(state.items);
     },
 
     clearCart(state) {
       state.items = [];
-      localStorage.removeItem("cartItems");
+      if (typeof window !== "undefined") {
+        const userStr = localStorage.getItem("user");
+        let storageKey = "cartItems";
+        if (userStr) {
+          try {
+            const userObj = JSON.parse(userStr);
+            if (userObj?._id) {
+              storageKey = `cartItems_${userObj._id}`;
+            }
+          } catch (e) { }
+        }
+        localStorage.removeItem(storageKey);
+      }
     },
   },
 });

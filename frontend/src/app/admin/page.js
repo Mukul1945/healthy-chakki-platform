@@ -34,8 +34,8 @@ function AdminLoginForm({ onSuccess }) {
       const hint = is503
         ? " Backend DB is down — check MongoDB connection and IP whitelist in Atlas."
         : !err.response
-        ? " Check NEXT_PUBLIC_API_URL (e.g. http://localhost:5000/api) and that backend is running."
-        : "";
+          ? " Check NEXT_PUBLIC_API_URL (e.g. http://localhost:5000/api) and that backend is running."
+          : "";
       setError(msg + hint);
     } finally {
       setLoading(false);
@@ -106,7 +106,9 @@ function AddProductForm() {
       formData.append("category", category);
       formData.append("description", description);
       formData.append("variants", variants);
-      formData.append("image", image);
+      if (image) {
+        formData.append("image", image);
+      }
       await createProduct(formData);
       setMessage({ type: "success", text: "Product created! It will appear on the products page." });
       setName("");
@@ -142,11 +144,10 @@ function AddProductForm() {
           <form onSubmit={handleSubmit} className="space-y-4 p-6 rounded-xl bg-white border border-stone-200 shadow-sm">
             {message.text && (
               <div
-                className={`p-3 rounded-lg text-sm ${
-                  message.type === "error"
+                className={`p-3 rounded-lg text-sm ${message.type === "error"
                     ? "bg-red-50 text-red-700 border border-red-200"
                     : "bg-green-50 text-green-800 border border-green-200"
-                }`}
+                  }`}
               >
                 {message.text}
               </div>

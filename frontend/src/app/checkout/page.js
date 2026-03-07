@@ -6,11 +6,23 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/cartSlice";
 import { placeOrder as placeOrderApi } from "@/services/order.service";
+import { createRazorpayOrder, verifyRazorpayPayment } from "@/services/payment.service";
 
 const PAYMENT_METHODS = [
   { id: "cod", label: "Cash on Delivery (COD)", description: "Pay when you receive your order" },
   { id: "online", label: "Pay Online", description: "Razorpay (card, UPI, netbanking)" },
 ];
+
+// Reusable script loader Utility
+const loadScript = (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -58,7 +70,7 @@ export default function CheckoutPage() {
 
     try {
       const paymentMethod = form.paymentMethod === "online" ? "ONLINE" : "COD";
-      await placeOrderApi({
+      const orderRes = await placeOrderApi({
         items: items.map((item) => ({
           productId: item.productId,
           name: item.name,
@@ -76,8 +88,68 @@ export default function CheckoutPage() {
         },
         paymentMethod,
       });
-      setOrderPlaced(true);
-      dispatch(clearCart());
+
+      // COD Flow
+      if (paymentMethod === "COD") {
+        setOrderPlaced(true);
+        dispatch(clearCart());
+        return;
+      }
+
+      // ONLINE Flow
+      const isScriptLoaded = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!isScriptLoaded) {
+        throw new Error("Razorpay SDK failed to load. Are you online?");
+      }
+
+      const rpOrderRes = await createRazorpayOrder({ orderId: orderRes._id });
+      if (!rpOrderRes.success) {
+        throw new Error(rpOrderRes.message || "Failed to create Razorpay order");
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: rpOrderRes.data.amount,
+        currency: rpOrderRes.data.currency,
+        name: "Healthy Chakki",
+        description: "Order Payment",
+        order_id: rpOrderRes.data.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await verifyRazorpayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyRes.success) {
+              setOrderPlaced(true);
+              dispatch(clearCart());
+            } else {
+              setSubmitError("Payment verification failed. Please contact support.");
+            }
+          } catch (err) {
+            setSubmitError(err.response?.data?.message || err.message || "Payment verification failed");
+          }
+        },
+        prefill: {
+          name: form.name.trim(),
+          contact: form.phone.trim(),
+        },
+        theme: {
+          color: "#d97706", // amber-600
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+
+      paymentObject.on('payment.failed', function (response) {
+        console.error(response.error);
+        setSubmitError("Payment Failed: " + response.error.description);
+      });
+
+      paymentObject.open();
+
     } catch (err) {
       setSubmitError(err.response?.data?.message || err.message || "Failed to place order");
     } finally {
@@ -222,11 +294,10 @@ export default function CheckoutPage() {
                   {PAYMENT_METHODS.map((method) => (
                     <label
                       key={method.id}
-                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-                        form.paymentMethod === method.id
+                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${form.paymentMethod === method.id
                           ? "border-amber-500 bg-amber-50"
                           : "border-stone-200 hover:border-stone-300"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"

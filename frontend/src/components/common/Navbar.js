@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
+import { rehydrateCart } from "@/redux/cartSlice";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(rehydrateCart([])); // Clear cart from UI
   };
 
   return (
@@ -72,14 +74,9 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <>
-                <Link href="/login" className="text-stone-700 font-medium hover:text-amber-700 transition-colors">
-                  Login
-                </Link>
-                <Link href="/signup" className="text-stone-700 font-medium hover:text-amber-700 transition-colors">
-                  Sign up
-                </Link>
-              </>
+              <Link href="/login" className="text-stone-700 font-medium hover:text-amber-700 transition-colors">
+                Login
+              </Link>
             )}
           </div>
 
@@ -104,10 +101,7 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <Link href="/login" className="text-sm font-medium text-stone-700">Login</Link>
-                <Link href="/signup" className="text-sm font-medium text-stone-700">Sign up</Link>
-              </>
+              <Link href="/login" className="text-sm font-medium text-stone-700">Login</Link>
             )}
           </div>
         </nav>
