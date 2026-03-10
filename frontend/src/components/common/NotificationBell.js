@@ -14,8 +14,10 @@ export default function NotificationBell() {
     const fetchNotifications = async () => {
         try {
             const { data } = await api.get("/notifications");
-            setNotifications(data.data);
-            setUnreadCount(data.data.filter((n) => !n.isRead).length);
+            // Only show unread notifications in the bell dropdown
+            const unreadOnly = data.data.filter((n) => !n.isRead);
+            setNotifications(unreadOnly);
+            setUnreadCount(unreadOnly.length);
         } catch (error) {
             console.error("Error fetching notifications:", error);
         }
@@ -28,6 +30,7 @@ export default function NotificationBell() {
 
         if (socket) {
             const handleNewNotification = (data) => {
+                // Prepend new notifications and increment count
                 setNotifications((prev) => [data, ...prev]);
                 setUnreadCount((prev) => prev + 1);
             };
@@ -54,10 +57,21 @@ export default function NotificationBell() {
     const markAllAsRead = async () => {
         try {
             await api.put("/notifications/read-all");
-            setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+            setNotifications([]); // Clear the dropdown as requested
             setUnreadCount(0);
         } catch (error) {
             console.error("Error marking all as read:", error);
+        }
+    };
+
+    const markAsRead = async (id) => {
+        try {
+            await api.put(`/notifications/${id}/read`);
+            // Remove from local state to "clear" it from the list
+            setNotifications((prev) => prev.filter((n) => (n._id || n.id) !== id));
+            setUnreadCount((prev) => Math.max(0, prev - 1));
+        } catch (error) {
+            console.error("Error marking as read:", error);
         }
     };
 
@@ -95,11 +109,16 @@ export default function NotificationBell() {
                                 No notifications yet
                             </div>
                         ) : (
-                            otifications.map((notification) => (
+                            notifications.map((notification) => (
                                 <div
                                     key={notification._id || notification.id}
-                                    className={`p-4 border-b border-stone-50 last:border-0 hover:bg-stone-50 transition-colors ${!notification.isRead ? 'bg-amber-50/30' : ''}`}
+                                    onClick={() => markAsRead(notification._id || notification.id)}
+                                    className="p-4 border-b border-stone-50 last:border-0 hover:bg-amber-50/50 transition-colors cursor-pointer group/item relative"
+                                    title="Click to clear"
                                 >
+                                    <div className="absolute top-4 right-4 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                        <span className="text-[10px] bg-stone-100 px-1.5 py-0.5 rounded text-stone-500 italic">Clear</span>
+                                    </div>
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="font-semibold text-sm text-stone-800">{notification.title}</span>
                                         <span className="text-[10px] text-stone-400">
