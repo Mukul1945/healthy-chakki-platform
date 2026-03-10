@@ -2,6 +2,7 @@ import { getRazorpayInstance } from "../../config/razorpay.js";
 import Order from "../orders/order.model.js";
 import crypto from "crypto";
 import { autoGenerateInvoice } from "../invoices/invoice.auto.js";
+import { createNotification } from "../notifications/notification.service.js";
 
 export const createRazorpayOrder = async (req, res) => {
   try {
@@ -84,8 +85,17 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.orderStatus = "PLACED";
     await order.save();
 
-    // Auto-generate invoice after successful online payment
-    autoGenerateInvoice(order); // fire-and-forget, non-blocking
+    // Auto-generate invoice AND notification after successful online payment
+    autoGenerateInvoice(order);
+    createNotification({
+      recipient: order.user,
+      type: "ORDER",
+      title: "Order Placed Successfully! 🎉",
+      message: `Payment received! Your order for ₹${order.totalAmount} has been confirmed and will be processed soon.`,
+      link: "/orders",
+      shouldEmail: true,
+      orderData: order
+    });
 
     res.json({
       success: true,

@@ -28,19 +28,17 @@ export const placeOrder = async (req, res) => {
       paymentMethod,
     });
 
-    // Trigger Notification
-    await createNotification({
-      recipient: req.user._id,
-      type: "ORDER",
-      title: "Order Placed Successfully! 🎉",
-      message: `Your order for ₹${totalAmount} has been received and will be processed soon.`,
-      link: "/orders",
-      shouldEmail: true,
-      orderData: order
-    });
-
-    // COD — auto-generate invoice immediately
+    // Trigger Notification & Invoice
     if (paymentMethod === "COD") {
+      await createNotification({
+        recipient: req.user._id,
+        type: "ORDER",
+        title: "Order Placed Successfully! 🎉",
+        message: `Your order for ₹${totalAmount} has been received and will be processed soon.`,
+        link: "/orders",
+        shouldEmail: true,
+        orderData: order
+      });
       autoGenerateInvoice(order); // fire-and-forget, non-blocking
     }
 
