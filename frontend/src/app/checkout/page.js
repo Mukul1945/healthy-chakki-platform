@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.items);
-  const token = useSelector((state) => state.auth.token);
+  const { token, hydrated } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({
     name: "",
@@ -43,6 +43,7 @@ export default function CheckoutPage() {
 
   // Require login to checkout
   useEffect(() => {
+    if (!hydrated) return; // Wait for localStorage restore before redirecting
     if (!token) {
       router.replace("/login?returnUrl=" + encodeURIComponent("/checkout"));
       return;
@@ -50,7 +51,7 @@ export default function CheckoutPage() {
     if (items.length === 0 && !orderPlaced) {
       router.replace("/cart");
     }
-  }, [token, items.length, orderPlaced, router]);
+  }, [token, hydrated, items.length, orderPlaced, router]);
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
@@ -157,6 +158,7 @@ export default function CheckoutPage() {
     }
   };
 
+  if (!hydrated) return null; // Prevent flash before auth is restored
   if (!token) return null;
   if (items.length === 0 && !orderPlaced) {
     return (
@@ -295,8 +297,8 @@ export default function CheckoutPage() {
                     <label
                       key={method.id}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${form.paymentMethod === method.id
-                          ? "border-amber-500 bg-amber-50"
-                          : "border-stone-200 hover:border-stone-300"
+                        ? "border-amber-500 bg-amber-50"
+                        : "border-stone-200 hover:border-stone-300"
                         }`}
                     >
                       <input

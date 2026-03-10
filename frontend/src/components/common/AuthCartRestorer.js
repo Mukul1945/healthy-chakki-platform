@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "@/redux/authSlice";
+import { loginSuccess, setHydrated } from "@/redux/authSlice";
 import { rehydrateCart } from "@/redux/cartSlice";
 
 /**
@@ -24,6 +24,9 @@ export default function AuthCartRestorer() {
       } catch { }
     }
 
+    // Always mark hydration as done, even if no token was found
+    dispatch(setHydrated());
+
     const storageKey = userObj ? `cartItems_${userObj._id}` : "cartItems";
     const cartStr = localStorage.getItem(storageKey);
 
@@ -37,3 +40,4 @@ export default function AuthCartRestorer() {
 
   return null;
 }
+

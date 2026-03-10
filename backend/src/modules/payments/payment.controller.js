@@ -1,6 +1,7 @@
 import { getRazorpayInstance } from "../../config/razorpay.js";
 import Order from "../orders/order.model.js";
 import crypto from "crypto";
+import { autoGenerateInvoice } from "../invoices/invoice.auto.js";
 
 export const createRazorpayOrder = async (req, res) => {
   try {
@@ -81,8 +82,10 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.razorpayPaymentId = razorpay_payment_id;
     order.razorpaySignature = razorpay_signature;
     order.orderStatus = "PLACED";
-
     await order.save();
+
+    // Auto-generate invoice after successful online payment
+    autoGenerateInvoice(order); // fire-and-forget, non-blocking
 
     res.json({
       success: true,

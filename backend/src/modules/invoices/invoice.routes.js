@@ -1,22 +1,17 @@
 import express from "express";
-import { createInvoice } from "./invoice.controller.js";
+import { createInvoice, downloadInvoice, getInvoiceByOrder } from "./invoice.controller.js";
 import { protect } from "../../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../../middlewares/role.middleware.js";
-import { downloadInvoice } from "./invoice.controller.js";
 
 const router = express.Router();
 
-// Admin generates invoice
-router.post(
-  "/:orderId",
-  protect,
-  authorizeRoles("ADMIN"),
-  createInvoice
-);
-router.get(
-    "/download/:invoiceNumber",
-    protect,
-    authorizeRoles("ADMIN"),
-    downloadInvoice
-  );
+// Any authenticated user: download their invoice PDF (streamed on-the-fly)
+router.get("/download/:orderId", protect, downloadInvoice);
+
+// Any authenticated user: check if an invoice record exists for their order
+router.get("/order/:orderId", protect, getInvoiceByOrder);
+
+// Admin: manually create invoice record
+router.post("/:orderId", protect, authorizeRoles("ADMIN"), createInvoice);
+
 export default router;

@@ -19,7 +19,8 @@ const invoiceSchema = new mongoose.Schema(
     gstAmount: Number,
     totalAmount: Number,
 
-    pdfPath: String,
+    pdfUrl: String,         // Cloudinary URL (permanent, publicly accessible)
+    cloudinaryPublicId: String, // Used to delete/re-generate if needed
   },
   { timestamps: true }
 );

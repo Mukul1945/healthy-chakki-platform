@@ -6,6 +6,7 @@ import orderRoutes from "./modules/orders/order.routes.js";
 import paymentRoutes from "./modules/payments/payment.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
 import userRoutes from "./modules/users/user.routes.js";
+import notificationRoutes from "./modules/notifications/notification.routes.js";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/invoices", invoiceRoutes);
+router.use("/notifications", notificationRoutes);
 
 
 export default router;

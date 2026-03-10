@@ -14,12 +14,18 @@ export const metadata = {
   description: "Fresh wheat, bajra & jowar atta ground daily in Greater Noida. No mixing, no preservatives.",
 };
 
+import { SocketProvider } from "../context/SocketContext";
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={outfit.variable}>
       <body className="min-h-screen flex flex-col bg-[#fffbeb]">
         <Providers>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <SocketProvider>
+            <ConditionalLayout>{children}</ConditionalLayout>
+            <Toaster position="top-right" reverseOrder={false} />
+          </SocketProvider>
         </Providers>
       </body>
     </html>

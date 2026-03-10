@@ -1,5 +1,7 @@
 import Order from "./order.model.js";
 import Product from "../products/product.model.js";
+import { createNotification } from "../notifications/notification.service.js";
+import { autoGenerateInvoice } from "../invoices/invoice.auto.js";
 
 // USER: Place order
 export const placeOrder = async (req, res) => {
@@ -25,6 +27,22 @@ export const placeOrder = async (req, res) => {
       deliveryAddress,
       paymentMethod,
     });
+
+    // Trigger Notification
+    await createNotification({
+      recipient: req.user._id,
+      type: "ORDER",
+      title: "Order Placed Successfully! 🎉",
+      message: `Your order for ₹${totalAmount} has been received and will be processed soon.`,
+      link: "/orders",
+      shouldEmail: true,
+      orderData: order
+    });
+
+    // COD — auto-generate invoice immediately
+    if (paymentMethod === "COD") {
+      autoGenerateInvoice(order); // fire-and-forget, non-blocking
+    }
 
     res.status(201).json({
       success: true,
@@ -70,6 +88,15 @@ export const updateOrderStatus = async (req, res) => {
     { orderStatus: status },
     { new: true }
   );
+
+  // Trigger Notification
+  await createNotification({
+    recipient: order.user,
+    type: "ORDER",
+    title: "Order Status Updated!",
+    message: `Your order #${order._id.toString().slice(-6)} status is now: ${status}.`,
+    link: "/orders"
+  });
 
   res.json({
     success: true,

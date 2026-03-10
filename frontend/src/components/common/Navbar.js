@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
 import { rehydrateCart } from "@/redux/cartSlice";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -59,6 +60,7 @@ export default function Navbar() {
             </Link>
             {token && user ? (
               <div className="flex items-center gap-3 pl-2 border-l border-stone-200">
+                <NotificationBell />
                 <Link href="/orders" className="text-stone-700 font-medium hover:text-amber-700 transition-colors">
                   My Orders
                 </Link>
@@ -95,6 +97,7 @@ export default function Navbar() {
             </Link>
             {token && user ? (
               <>
+                <NotificationBell />
                 <Link href="/orders" className="text-sm font-medium text-stone-700">Orders</Link>
                 <button type="button" onClick={handleLogout} className="text-sm font-medium text-stone-700">
                   Logout

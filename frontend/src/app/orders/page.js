@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { getMyOrders } from "@/services/order.service";
+import api from "@/services/api";
 
 const STATUS_LABELS = {
   PLACED: "Order Placed",
@@ -32,14 +33,49 @@ function formatDate(dateStr) {
   });
 }
 
+function InvoiceButton({ orderId }) {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  const handleDownload = () => {
+    const token = localStorage.getItem("token");
+    // Open a temporary fetch to get a blob and trigger download
+    fetch(`${apiBase}/invoices/download/${orderId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to generate invoice");
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoice-${orderId.slice(-6)}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => alert("Could not download invoice. Please try again."));
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 text-xs font-semibold transition-colors"
+    >
+      📄 Download Invoice
+    </button>
+  );
+}
+
 export default function MyOrdersPage() {
   const router = useRouter();
-  const token = useSelector((state) => state.auth.token);
+  const { token, hydrated } = useSelector((state) => state.auth);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!hydrated) return; // Wait for localStorage restore before redirecting
     if (!token) {
       router.replace("/login?returnUrl=" + encodeURIComponent("/orders"));
       return;
@@ -53,8 +89,9 @@ export default function MyOrdersPage() {
         setOrders([]);
       })
       .finally(() => setLoading(false));
-  }, [token, router]);
+  }, [token, hydrated, router]);
 
+  if (!hydrated) return null; // Prevent flash before auth is restored
   if (!token) return null;
 
   return (
@@ -107,9 +144,8 @@ export default function MyOrdersPage() {
                       </span>
                     </div>
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                        STATUS_STYLE[order.orderStatus] || "bg-stone-100 text-stone-700"
-                      }`}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLE[order.orderStatus] || "bg-stone-100 text-stone-700"
+                        }`}
                     >
                       {STATUS_LABELS[order.orderStatus] || order.orderStatus}
                     </span>
@@ -140,6 +176,7 @@ export default function MyOrdersPage() {
                   <p className="mt-2 text-xs text-stone-500">
                     Payment: {order.paymentMethod === "ONLINE" ? "Online" : "Cash on Delivery"}
                   </p>
+                  <InvoiceButton orderId={order._id} />
                 </div>
               ))}
             </div>
