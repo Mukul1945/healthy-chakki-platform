@@ -5,21 +5,21 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-stone-50 border-b border-stone-200">
-        <div className="container-wide section">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight">
+        <div className="container-wide section sm:py-20 md:py-24 lg:py-32">
+          <div className="max-w-2xl text-center md:text-left mx-auto md:mx-0">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-stone-900 tracking-tight leading-tight">
               Fresh Chakki Atta,{" "}
-              <span className="text-amber-700">Ground Daily</span>
+              <span className="text-amber-700 block sm:inline">Ground Daily</span>
             </h1>
-            <p className="mt-4 text-lg text-stone-600">
+            <p className="mt-4 text-base sm:text-lg text-stone-600 max-w-xl mx-auto md:mx-0">
               Pure wheat, bajra & jowar atta freshly ground in our local chakki.
               Serving Greater Noida with purity and trust.
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/products" className="btn-primary">
+            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
+              <Link href="/products" className="btn-primary w-full sm:w-auto">
                 View Products
               </Link>
-              <Link href="/about" className="btn-secondary">
+              <Link href="/about" className="btn-secondary w-full sm:w-auto">
                 Our Process
               </Link>
             </div>
@@ -73,10 +73,10 @@ export default function HomePage() {
               Browse our fresh atta and place your order. We&apos;ll deliver to your doorstep.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
-              <Link href="/products" className="btn-primary">
+              <Link href="/products" className="btn-primary w-full sm:w-auto">
                 Shop Atta
               </Link>
-              <Link href="/contact" className="btn-secondary">
+              <Link href="/contact" className="btn-secondary w-full sm:w-auto">
                 Contact Us
               </Link>
             </div>

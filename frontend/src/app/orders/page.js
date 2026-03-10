@@ -165,12 +165,18 @@ export default function MyOrdersPage() {
                     <span>₹{order.totalAmount}</span>
                   </div>
                   {order.deliveryAddress && (
-                    <div className="mt-3 pt-3 border-t border-stone-100 text-sm text-stone-600">
-                      <span className="font-medium text-stone-700">Delivery: </span>
-                      {order.deliveryAddress.name}
-                      {order.deliveryAddress.phone && ` · ${order.deliveryAddress.phone}`}
-                      {order.deliveryAddress.address && ` · ${order.deliveryAddress.address}`}
-                      {order.deliveryAddress.landmark && ` (${order.deliveryAddress.landmark})`}
+                    <div className="mt-4 pt-4 border-t border-stone-100 text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-stone-700">Delivery Address:</span>
+                        <div className="text-stone-600 space-y-0.5">
+                          <p className="font-medium text-stone-800">{order.deliveryAddress.name}</p>
+                          <p>{order.deliveryAddress.phone}</p>
+                          <p className="leading-relaxed">{order.deliveryAddress.address}</p>
+                          {order.deliveryAddress.landmark && (
+                            <p className="text-xs italic text-stone-500">Landmark: {order.deliveryAddress.landmark}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                   <p className="mt-2 text-xs text-stone-500">

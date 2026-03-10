@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
@@ -7,6 +8,7 @@ import { rehydrateCart } from "@/redux/cartSlice";
 import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const cartCount = useSelector((state) =>
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
@@ -24,12 +26,14 @@ export default function Navbar() {
   const handleLogout = () => {
     dispatch(logout());
     dispatch(rehydrateCart([])); // Clear cart from UI
+    setIsMenuOpen(false);
   };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-stone-200 shadow-sm">
       <div className="container-wide">
         <nav className="flex items-center justify-between h-16 md:h-18">
+          {/* Logo */}
           <Link
             href="/"
             className="text-xl font-bold text-amber-800 hover:text-amber-700 transition-colors"
@@ -37,6 +41,7 @@ export default function Navbar() {
             Healthy Chakki
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map(({ href, label }) => (
               <Link
@@ -70,7 +75,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-sm font-medium text-stone-600 hover:text-amber-700"
+                  className="text-sm font-medium text-stone-600 hover:text-amber-700 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -82,32 +87,73 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="flex md:hidden items-center gap-3">
-            <Link href="/" className="text-sm font-medium text-stone-700">Home</Link>
-            <Link href="/products" className="text-sm font-medium text-stone-700">Products</Link>
-            <Link href="/contact" className="text-sm font-medium text-stone-700">Contact</Link>
-            <Link href="/cart" className="relative p-2">
-              <span className="sr-only">Cart</span>
-              <span className="text-lg">🛒</span>
+          {/* Mobile Right Icons (Cart + Bell + Menu Toggle) */}
+          <div className="flex md:hidden items-center gap-4">
+            <Link href="/cart" className="relative p-1">
+              <span className="text-xl">🛒</span>
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-600 text-white text-[10px] font-bold">
+                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-600 text-white text-[10px] font-bold border-2 border-white">
                   {cartCount}
                 </span>
               )}
             </Link>
-            {token && user ? (
-              <>
-                <NotificationBell />
-                <Link href="/orders" className="text-sm font-medium text-stone-700">Orders</Link>
-                <button type="button" onClick={handleLogout} className="text-sm font-medium text-stone-700">
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link href="/login" className="text-sm font-medium text-stone-700">Login</Link>
-            )}
+            {token && <NotificationBell />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-1 text-stone-600 focus:outline-none"
+              aria-label="Toggle menu"
+            >
+              <span className="text-2xl">{isMenuOpen ? "✕" : "☰"}</span>
+            </button>
           </div>
         </nav>
+
+        {/* Mobile Dropdown Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-stone-100 py-4 bg-white animate-in slide-in-from-top duration-200">
+            <div className="flex flex-col gap-1">
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-3 text-stone-700 font-medium hover:bg-amber-50 hover:text-amber-800 transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
+              <div className="h-px bg-stone-100 my-2 mx-4" />
+              {token && user ? (
+                <>
+                  <Link
+                    href="/orders"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="px-4 py-3 text-stone-700 font-medium hover:bg-amber-50 hover:text-amber-800 transition-colors"
+                  >
+                    My Orders
+                  </Link>
+                  <div className="px-4 py-2 mt-2">
+                    <p className="text-xs text-stone-500 mb-2">Logged in as: {user.email}</p>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left py-2 text-red-600 font-semibold"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-3 text-amber-700 font-bold hover:bg-amber-50 transition-colors"
+                >
+                  Login / Sign Up
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
