@@ -16,6 +16,7 @@ export const metadata = {
 
 import { SocketProvider } from "../context/SocketContext";
 import { Toaster } from "react-hot-toast";
+import ChatBot from "../components/common/ChatBot";
 
 export default function RootLayout({ children }) {
   return (
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
           <SocketProvider>
             <ConditionalLayout>{children}</ConditionalLayout>
             <Toaster position="top-right" reverseOrder={false} />
+            <ChatBot />
           </SocketProvider>
         </Providers>
       </body>

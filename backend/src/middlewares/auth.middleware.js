@@ -17,6 +17,7 @@ export const protect = async (req, res, next) => {
     req.user = await User.findById(decoded.id);
     next();
   } catch (err) {
+    console.error(`Auth Error (${err.name}):`, err.message);
     return res.status(401).json({ message: "Token invalid" });
   }
 };
