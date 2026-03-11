@@ -43,14 +43,45 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// PUBLIC: Get all active products
+// PUBLIC: Get all active products with search & pagination
 export const getProducts = async (req, res) => {
-  const products = await Product.find({ isActive: true });
+  try {
+    const { search, page = 1, limit = 9 } = req.query;
+    const query = { isActive: true };
 
-  res.json({
-    success: true,
-    data: products,
-  });
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const skipIdx = (page - 1) * limit;
+
+    const products = await Product.find(query)
+      .sort("-createdAt")
+      .limit(Number(limit))
+      .skip(skipIdx);
+
+    const total = await Product.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: products,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // ADMIN: Get all products (active + inactive)

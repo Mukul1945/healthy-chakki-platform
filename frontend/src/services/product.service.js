@@ -1,12 +1,12 @@
 import api from "./api";
 
 /**
- * Fetch all active products (public).
- * @returns {Promise<Array>} List of products
+ * Fetch active products (public) with search and pagination support.
+ * @param {Object} params - { search, page, limit }
  */
-export const getProducts = async () => {
-  const res = await api.get("/products");
-  return res.data?.data ?? [];
+export const getProducts = async (params = {}) => {
+  const res = await api.get("/products", { params });
+  return res.data; // Return full response object { success, data, pagination }
 };
 
 /**
