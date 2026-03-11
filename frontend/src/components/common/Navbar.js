@@ -18,6 +18,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home" },
+    { href: "/ai-recommendation", label: "AI Diet 🤖" },
     { href: "/about", label: "About" },
     { href: "/products", label: "Products" },
     { href: "/contact", label: "Contact" },

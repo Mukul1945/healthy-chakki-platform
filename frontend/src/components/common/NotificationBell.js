@@ -55,12 +55,21 @@ export default function NotificationBell() {
     }, []);
 
     const markAllAsRead = async () => {
+        // Optimistic update: clear UI immediately to feel responsive
+        const previousNotifications = [...notifications];
+        const previousCount = unreadCount;
+
+        setNotifications([]);
+        setUnreadCount(0);
+
         try {
             await api.put("/notifications/read-all");
-            setNotifications([]); // Clear the dropdown as requested
-            setUnreadCount(0);
         } catch (error) {
             console.error("Error marking all as read:", error);
+            // Rollback if it failed (optional, but good for data integrity)
+            // setNotifications(previousNotifications);
+            // setUnreadCount(previousCount);
+            alert("Could not update notifications on the server. Please check your internet connection.");
         }
     };
 
