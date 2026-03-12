@@ -1,23 +1,44 @@
 @import "tailwindcss";
 
-/* Theme: Healthy Chakki – warm, natural, trustworthy */
+/* Theme: Organic Chakki - Earthy, Warm, Reliable */
 :root {
-  --color-primary: #b45309;
-  --color-primary-dark: #924208;
-  --color-primary-light: #d97706;
-  --color-accent: #166534;
-  --color-accent-light: #22c55e;
-  --color-surface: #fffbeb;
-  --color-surface-alt: #fef3c7;
-  --color-text: #1c1917;
+  --color-primary: #c27803; /* Wheat Gold */
+  --color-primary-dark: #8c5400; /* Darker Gold for hover */
+  --color-accent: #2c7a2c; /* Fresh Green */
+  --color-accent-light: #4ade80;
+  --color-earthy-brown: #5c4033; /* Earthy Brown */
+  --color-surface: #faf7f2; /* Warm Beige background */
+  --color-surface-alt: #f1ede1; /* Slightly darker beige */
+  --color-text: #292524;
   --color-text-muted: #57534e;
-  --color-border: #e7e5e4;
+  --color-border: #e6e0d4;
   --color-white: #ffffff;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px rgba(92, 64, 51, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(92, 64, 51, 0.08), 0 2px 4px -2px rgba(92, 64, 51, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(92, 64, 51, 0.08), 0 4px 6px -4px rgba(92, 64, 51, 0.05);
   --radius: 0.75rem;
   --radius-lg: 1rem;
+}
+
+/* Custom Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-100px) rotate(45deg); opacity: 0; }
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 5s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {

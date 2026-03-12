@@ -81,7 +81,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-8 border-t border-stone-700 text-center text-stone-500 text-sm">
-          © {currentYear} Healthy Chakki. All rights reserved.
+          © {currentYear} AnantaLabs. All rights reserved.
         </div>
       </div>
     </footer>
