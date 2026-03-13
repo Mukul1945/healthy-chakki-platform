@@ -17,7 +17,7 @@ export default function Footer() {
               />
             </Link>
             <p className="mt-3 text-sm text-stone-400 max-w-xs">
-              Fresh atta & pure foods, ground daily in Greater Noida. No mixing, no preservatives.
+              Fresh atta & pure foods, ground daily in Greater Noida. No mixing, no preservatives
             </p>
           </div>
 

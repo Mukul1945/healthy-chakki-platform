@@ -43,12 +43,13 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// PUBLIC: Get all active products with search & pagination
+// PUBLIC: Get all active products with search, filters, sorting & pagination
 export const getProducts = async (req, res) => {
   try {
-    const { search, page = 1, limit = 9 } = req.query;
+    const { search, category, minPrice, maxPrice, sort, page = 1, limit = 9 } = req.query;
     const query = { isActive: true };
 
+    // Search filter
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -57,10 +58,34 @@ export const getProducts = async (req, res) => {
       ];
     }
 
+    // Category filter
+    if (category && category !== "ALL") {
+      query.category = category;
+    }
+
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query["variants.price"] = {};
+      if (minPrice) query["variants.price"].$gte = Number(minPrice);
+      if (maxPrice) query["variants.price"].$lte = Number(maxPrice);
+    }
+
+    // Sorting logic
+    let sortQuery = "-createdAt"; // Default: Newest first
+    if (sort === "price_asc") {
+      sortQuery = "variants.0.price"; // Assuming the first variant is the primary price
+    } else if (sort === "price_desc") {
+      sortQuery = "-variants.0.price";
+    } else if (sort === "oldest") {
+      sortQuery = "createdAt";
+    } else if (sort === "newest") {
+      sortQuery = "-createdAt";
+    }
+
     const skipIdx = (page - 1) * limit;
 
     const products = await Product.find(query)
-      .sort("-createdAt")
+      .sort(sortQuery)
       .limit(Number(limit))
       .skip(skipIdx);
 
