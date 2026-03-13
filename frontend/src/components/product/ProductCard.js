@@ -3,6 +3,7 @@
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
 import { useState } from "react";
+import WishlistButton from "@/components/common/WishlistButton";
 
 // Normalize product: support both variants[] and simple { variant, price }
 function getVariants(product) {
@@ -33,13 +34,17 @@ export default function ProductCard({ product }) {
   const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23fef3c7' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23b45309' font-size='24' font-family='system-ui'%3E🌾%3C/text%3E%3C/svg%3E";
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
       <div className="aspect-[4/3] bg-amber-50 relative">
         <img
           src={imageUrl || placeholderSvg}
           alt={product.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
+        {/* Wishlist Button Overlay */}
+        <div className="absolute top-2 right-2">
+          <WishlistButton productId={product._id} />
+        </div>
       </div>
 
       <div className="p-4">

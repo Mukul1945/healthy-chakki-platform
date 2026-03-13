@@ -13,6 +13,7 @@ export default function Navbar() {
   const cartCount = useSelector((state) =>
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
+  const wishlistCount = useSelector((state) => state.wishlist.items.length);
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
 
@@ -53,13 +54,31 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+
+            {/* Wishlist Link */}
+            <Link
+              href="/wishlist"
+              className="relative p-2 text-stone-700 hover:text-amber-700 transition-colors group"
+              title="Saved Items"
+            >
+              <span className={`text-xl transition-transform duration-300 group-hover:scale-110 block ${wishlistCount > 0 ? 'filter grayscale-0' : 'filter grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0'}`}>
+                ❤️
+              </span>
+              {wishlistCount > 0 && (
+                <span className="absolute top-1 right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-600 text-white text-[9px] font-bold border-2 border-white shadow-sm animate-in zoom-in duration-300">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             <Link
               href="/cart"
-              className="flex items-center gap-2 text-stone-700 font-medium hover:text-amber-700 transition-colors"
+              className="relative p-2 text-stone-700 hover:text-amber-700 transition-colors group"
+              title="Shopping Cart"
             >
-              <span>Cart</span>
+              <span className="text-xl transition-transform duration-300 group-hover:scale-110 block">🛒</span>
               {cartCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-amber-600 text-white text-xs font-semibold">
+                <span className="absolute top-1 right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-600 text-white text-[9px] font-bold border-2 border-white shadow-sm">
                   {cartCount}
                 </span>
               )}
@@ -88,12 +107,20 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Right Icons (Cart + Bell + Menu Toggle) */}
-          <div className="flex md:hidden items-center gap-4">
+          {/* Mobile Right Icons (Wishlist + Cart + Bell + Menu Toggle) */}
+          <div className="flex md:hidden items-center gap-3">
+            <Link href="/wishlist" className="relative p-1">
+              <span className="text-xl">❤️</span>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-600 text-white text-[9px] font-bold border-2 border-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
             <Link href="/cart" className="relative p-1">
               <span className="text-xl">🛒</span>
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-600 text-white text-[10px] font-bold border-2 border-white">
+                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-600 text-white text-[10px] font-bold border-2 border-white shadow-sm">
                   {cartCount}
                 </span>
               )}
