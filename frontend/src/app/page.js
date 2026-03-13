@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import HomeProducts from "@/components/home/HomeProducts";
 import TestimonialCarousel from "@/components/home/TestimonialCarousel";
 
@@ -141,11 +142,13 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          <div className="lg:w-1/2 w-full relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/10 shadow-inner">
-            <div className="text-center p-6">
-              <div className="text-6xl md:text-8xl mb-4 animate-pulse">⚙️</div>
-              <div className="text-xl md:text-2xl font-bold tracking-widest text-[#f1ede1] uppercase">Cold Pressed Grinding</div>
-            </div>
+          <div className="lg:w-1/2 w-full relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-inner group">
+            <Image
+              src="/stone-grinding.jpg"
+              alt="Traditional Stone Grinding"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
           </div>
         </div>
       </section>
