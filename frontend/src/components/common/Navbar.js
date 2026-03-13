@@ -36,11 +36,12 @@ export default function Navbar() {
       <div className="container-wide">
         <nav className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
-          <Link
-            href="/"
-            className="text-xl font-bold text-amber-800 hover:text-amber-700 transition-colors"
-          >
-            Healthy Chakki
+          <Link href="/" className="flex items-center">
+            <img
+              src="/logo.png"
+              alt="Healthy Chakki Logo"
+              className="h-14 md:h-16 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -10,9 +10,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block">
-              <span className="text-xl font-bold text-[#fef3c7]">
-                Healthy Chakki
-              </span>
+              <img
+                src="/logo.png"
+                alt="Healthy Chakki Logo"
+                className="h-12 w-auto object-contain brightness-0 invert"
+              />
             </Link>
             <p className="mt-3 text-sm text-stone-400 max-w-xs">
               Fresh atta & pure foods, ground daily in Greater Noida. No mixing, no preservatives.
