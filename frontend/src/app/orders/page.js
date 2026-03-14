@@ -6,19 +6,22 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { getMyOrders } from "@/services/order.service";
 import api from "@/services/api";
+import OrderTimeline from "@/components/order/OrderTimeline";
 
 const STATUS_LABELS = {
   PLACED: "Order Placed",
-  PACKED: "Packed",
+  GRAINS_CLEANED: "Grains Cleaned",
+  GRINDING: "Grinding",
   OUT_FOR_DELIVERY: "Out for Delivery",
   DELIVERED: "Delivered",
 };
 
 const STATUS_STYLE = {
-  PLACED: "bg-amber-100 text-amber-800",
-  PACKED: "bg-blue-100 text-blue-800",
-  OUT_FOR_DELIVERY: "bg-purple-100 text-purple-800",
-  DELIVERED: "bg-green-100 text-green-800",
+  PLACED: "bg-amber-100 text-amber-800 border border-amber-200",
+  GRAINS_CLEANED: "bg-blue-100 text-blue-800 border border-blue-200",
+  GRINDING: "bg-orange-100 text-orange-800 border border-orange-200",
+  OUT_FOR_DELIVERY: "bg-purple-100 text-purple-800 border border-purple-200",
+  DELIVERED: "bg-green-100 text-green-800 border border-green-200",
 };
 
 function formatDate(dateStr) {
@@ -149,6 +152,11 @@ export default function MyOrdersPage() {
                     >
                       {STATUS_LABELS[order.orderStatus] || order.orderStatus}
                     </span>
+                  </div>
+
+                  {/* Visual Timeline */}
+                  <div className="mb-8 mt-4 bg-stone-50/50 p-4 rounded-xl border border-stone-100">
+                    <OrderTimeline currentStatus={order.orderStatus} />
                   </div>
                   <ul className="space-y-1 mb-4">
                     {order.items?.map((item, i) => (

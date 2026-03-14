@@ -7,14 +7,16 @@ import { getAllOrders, updateOrderStatus } from "@/services/order.service";
 
 const STATUS_OPTIONS = [
   "PLACED",
-  "PACKED",
+  "GRAINS_CLEANED",
+  "GRINDING",
   "OUT_FOR_DELIVERY",
   "DELIVERED",
 ];
 
 const STATUS_LABELS = {
-  PLACED: "Placed",
-  PACKED: "Packed",
+  PLACED: "Order Placed",
+  GRAINS_CLEANED: "Grains Cleaned",
+  GRINDING: "Grinding",
   OUT_FOR_DELIVERY: "Out for delivery",
   DELIVERED: "Delivered",
 };

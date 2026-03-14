@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/authSlice";
 import { rehydrateCart } from "@/redux/cartSlice";
-import { login as loginApi } from "@/services/auth.service";
+import { login as loginApi, googleLogin as googleLoginApi } from "@/services/auth.service";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -60,6 +61,46 @@ export default function LoginClient() {
       setLoading(false);
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+    setLoading(true);
+    try {
+      const { token, user } = await googleLoginApi(credentialResponse.credential);
+      dispatch(loginSuccess({ token, user }));
+
+      // Sync Cart
+      const userCartKey = `cartItems_${user._id}`;
+      const guestCartStr = localStorage.getItem("cartItems");
+      const guestItems = guestCartStr ? JSON.parse(guestCartStr) : [];
+      
+      const userCartStr = localStorage.getItem(userCartKey);
+      let userItems = userCartStr ? JSON.parse(userCartStr) : [];
+
+      if (Array.isArray(guestItems) && guestItems.length > 0) {
+        guestItems.forEach((gItem) => {
+          const existing = userItems.find((u) => u.productId === gItem.productId);
+          if (existing) {
+            existing.quantity += gItem.quantity;
+          } else {
+            userItems.push(gItem);
+          }
+        });
+        localStorage.removeItem("cartItems");
+      }
+      
+      localStorage.setItem(userCartKey, JSON.stringify(userItems));
+      dispatch(rehydrateCart(userItems));
+
+      router.push(returnUrl);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Google Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   return (
     <section className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
@@ -372,7 +413,37 @@ export default function LoginClient() {
                         <div className="w-full border-t-2 border-amber-200"></div>
                       </div>
                       <div className="relative flex justify-center text-sm">
-                        <span className="px-6 bg-white text-amber-700 font-bold text-base">Don't have an account?</span>
+                        <span className="px-6 bg-white text-amber-700 font-bold text-base">Or continue with</span>
+                      </div>
+                    </div>
+
+                    {/* Google Login Button */}
+                    <div className="flex flex-col items-center justify-center mb-6">
+                      {clientId ? (
+                        <GoogleOAuthProvider clientId={clientId}>
+                          <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError("Google Login Failed")}
+                            theme="filled_blue"
+                            shape="pill"
+                            text="signin_with"
+                            width="100%"
+                          />
+                        </GoogleOAuthProvider>
+                      ) : (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                          <p className="text-sm text-amber-800 font-medium">Google Login is not configured.</p>
+                          <p className="text-xs text-amber-600 mt-1 italic">Please add NEXT_PUBLIC_GOOGLE_CLIENT_ID to .env.local</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="relative my-8">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t-2 border-amber-200"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-6 bg-white text-amber-700 font-bold text-base">Don&apos;t have an account?</span>
                       </div>
                     </div>
 
