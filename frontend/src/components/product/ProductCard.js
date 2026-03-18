@@ -1,8 +1,9 @@
 "use client";
 
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
 import { useState } from "react";
+import Image from "next/image";
 import WishlistButton from "@/components/common/WishlistButton";
 
 // Normalize product: support both variants[] and simple { variant, price }
@@ -36,10 +37,12 @@ export default function ProductCard({ product }) {
   return (
     <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
       <div className="aspect-[4/3] bg-amber-50 relative">
-        <img
+        <Image
           src={imageUrl || placeholderSvg}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
         {/* Wishlist Button Overlay */}
         <div className="absolute top-2 right-2">

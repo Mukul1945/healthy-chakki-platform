@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import {
@@ -138,10 +139,11 @@ export default function AdminProductsPage() {
             >
               <div className="w-14 h-14 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
                 {product.image?.url ? (
-                  <img
+                  <Image
                     src={product.image.url}
                     alt=""
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <span className="w-full h-full flex items-center justify-center text-2xl">🌾</span>

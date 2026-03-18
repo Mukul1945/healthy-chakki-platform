@@ -10,6 +10,18 @@ export const getProducts = async (params = {}) => {
 };
 
 /**
+ * Fetch multiple products by IDs (batch fetch).
+ * @param {Array} ids - Array of product IDs
+ */
+export const getProductsByIds = async (ids = []) => {
+  if (ids.length === 0) return { success: true, data: [] };
+  const res = await api.get("/products/batch", {
+    params: { ids: ids.join(",") },
+  });
+  return res.data;
+};
+
+/**
  * Create product (admin only). Requires auth token.
  * @param {FormData} formData - name, category, description, variants (JSON string), image (file)
  */

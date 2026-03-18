@@ -52,7 +52,7 @@ export default function TestimonialCarousel() {
                         </div>
                         {/* Text */}
                         <p className="text-lg md:text-xl lg:text-2xl text-[var(--color-earthy-brown)] font-medium leading-relaxed italic mb-8">
-                            "{test.text}"
+                            &quot;{test.text}&quot;
                         </p>
                         {/* Author */}
                         <div>

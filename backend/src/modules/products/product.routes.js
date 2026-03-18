@@ -3,6 +3,7 @@ import {
   createProduct,
   updateProduct,
   getProducts,
+  getProductsByIds,
   getAllProducts,
   deleteProduct,
 } from "./product.controller.js";
@@ -13,6 +14,7 @@ const router = express.Router();
 
 // Public
 router.get("/", getProducts);
+router.get("/batch", getProductsByIds);
 
 // Admin only
 router.get("/all", protect, authorizeRoles("ADMIN"), getAllProducts);

@@ -85,6 +85,7 @@ export const getProducts = async (req, res) => {
     const skipIdx = (page - 1) * limit;
 
     const products = await Product.find(query)
+      .select("-image.publicId -gstPercent -createdBy -updatedAt -__v")
       .sort(sortQuery)
       .limit(Number(limit))
       .skip(skipIdx);
@@ -125,6 +126,31 @@ export const deleteProduct = async (req, res) => {
     res.json({
       success: true,
       message: "Product deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+// PUBLIC: Get multiple products by IDs
+export const getProductsByIds = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    if (!ids) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const idsArray = ids.split(",");
+    const products = await Product.find({
+      _id: { $in: idsArray },
+      isActive: true,
+    }).select("-image.publicId -gstPercent -createdBy -updatedAt -__v");
+
+    res.json({
+      success: true,
+      data: products,
     });
   } catch (error) {
     res.status(500).json({

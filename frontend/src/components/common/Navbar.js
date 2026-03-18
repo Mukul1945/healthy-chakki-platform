@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
 import { rehydrateCart } from "@/redux/cartSlice";
@@ -37,10 +38,13 @@ export default function Navbar() {
         <nav className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <img
+            <Image
               src="/logo.png"
               alt="Healthy Chakki Logo"
+              width={64}
+              height={64}
               className="h-14 md:h-16 w-auto object-contain"
+              priority
             />
           </Link>
 

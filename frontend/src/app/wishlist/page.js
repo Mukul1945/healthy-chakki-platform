@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { removeMultipleFromWishlist } from "@/redux/wishlistSlice";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
-import { getProducts } from "@/services/product.service";
+import { getProductsByIds } from "@/services/product.service";
 import Loading from "@/components/common/Loading";
 
 export default function WishlistPage() {
@@ -24,17 +24,15 @@ export default function WishlistPage() {
 
             setLoading(true);
             try {
-                // Fetch all products and filter locally for simplicity since we have product IDs
-                const res = await getProducts({ limit: 100 });
+                // Fetch only the products in the wishlist by their IDs
+                const res = await getProductsByIds(items);
                 if (res.success) {
                     const fetchedProducts = res.data;
-                    const fetchedIds = fetchedProducts.map(p => p._id);
-                    
-                    // Filter for products that are in our wishlist
-                    const wishlistProducts = fetchedProducts.filter((p) => items.includes(p._id));
-                    setProducts(wishlistProducts);
+                    setProducts(fetchedProducts);
 
-                    // Check for IDs in wishlist that were NOT found in the fetched list
+                    // Sync/Cleanup: If some IDs from "items" weren't returned by the backend,
+                    // they might be deleted or inactive.
+                    const fetchedIds = fetchedProducts.map(p => p._id);
                     const missingIds = items.filter(id => !fetchedIds.includes(id));
                     
                     if (missingIds.length > 0) {
