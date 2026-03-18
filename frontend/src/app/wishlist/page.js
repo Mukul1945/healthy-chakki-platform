@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { removeMultipleFromWishlist } from "@/redux/wishlistSlice";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import { getProducts } from "@/services/product.service";
@@ -9,6 +10,7 @@ import Loading from "@/components/common/Loading";
 
 export default function WishlistPage() {
     const { items } = useSelector((state) => state.wishlist);
+    const dispatch = useDispatch();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -23,11 +25,22 @@ export default function WishlistPage() {
             setLoading(true);
             try {
                 // Fetch all products and filter locally for simplicity since we have product IDs
-                // in a real large app, we would have an API endpoint /api/products/batch
                 const res = await getProducts({ limit: 100 });
                 if (res.success) {
-                    const filtered = res.data.filter((p) => items.includes(p._id));
-                    setProducts(filtered);
+                    const fetchedProducts = res.data;
+                    const fetchedIds = fetchedProducts.map(p => p._id);
+                    
+                    // Filter for products that are in our wishlist
+                    const wishlistProducts = fetchedProducts.filter((p) => items.includes(p._id));
+                    setProducts(wishlistProducts);
+
+                    // Check for IDs in wishlist that were NOT found in the fetched list
+                    const missingIds = items.filter(id => !fetchedIds.includes(id));
+                    
+                    if (missingIds.length > 0) {
+                        console.log("Cleaning up missing wishlist items:", missingIds);
+                        dispatch(removeMultipleFromWishlist(missingIds));
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching wishlist products:", error);
@@ -37,7 +50,7 @@ export default function WishlistPage() {
         }
 
         fetchWishlistProducts();
-    }, [items]);
+    }, [items, dispatch]);
 
     if (loading) return <Loading />;
 

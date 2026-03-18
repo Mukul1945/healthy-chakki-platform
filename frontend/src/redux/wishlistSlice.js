@@ -54,6 +54,11 @@ const wishlistSlice = createSlice({
                 localStorage.removeItem(storageKey);
             }
         },
+        removeMultipleFromWishlist(state, action) {
+            const productIdsToRemove = action.payload; // Array of IDs
+            state.items = state.items.filter(id => !productIdsToRemove.includes(id));
+            saveWishlistToStorage(state.items);
+        },
     },
 });
 
@@ -61,6 +66,7 @@ export const {
     rehydrateWishlist,
     toggleWishlistItem,
     clearWishlist,
+    removeMultipleFromWishlist,
 } = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;
