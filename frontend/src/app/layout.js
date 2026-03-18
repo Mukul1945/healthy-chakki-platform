@@ -21,7 +21,7 @@ import ChatBot from "../components/common/ChatBot";
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={outfit.variable}>
-      <body className="min-h-screen flex flex-col bg-[#fffbeb]">
+      <body className="min-h-screen flex flex-col bg-[#fffbeb] overflow-x-hidden">
         <Providers>
           <SocketProvider>
             <ConditionalLayout>{children}</ConditionalLayout>

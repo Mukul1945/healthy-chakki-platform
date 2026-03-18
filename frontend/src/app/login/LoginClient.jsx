@@ -260,8 +260,8 @@ export default function LoginClient() {
             </div>
 
             {/* Right Side - Login Form */}
-            <div className="flex items-center justify-center p-4">
-              <div className="w-full max-w-md">
+            <div className="flex items-center justify-center p-2 sm:p-4 w-full overflow-hidden">
+              <div className="w-full max-w-md mx-auto overflow-hidden">
                 
                 {/* Mobile Logo */}
                 <div className="lg:hidden text-center mb-10">
@@ -287,7 +287,7 @@ export default function LoginClient() {
                   </div>
 
                   {/* Form */}
-                  <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                  <form onSubmit={handleSubmit} className="px-4 sm:px-8 py-8 space-y-6 overflow-hidden">
                     
                     {/* Error Message */}
                     {error && (
@@ -420,7 +420,7 @@ export default function LoginClient() {
                     {/* Google Login Button */}
                     <div className="flex flex-col items-center justify-center mb-6 w-full max-w-full overflow-hidden">
                       {clientId ? (
-                        <div className="w-full overflow-hidden flex justify-center px-1">
+                        <div className="w-full overflow-hidden flex justify-center px-1 mx-auto" style={{ maxWidth: '280px' }}>
                           <GoogleOAuthProvider clientId={clientId}>
                             <GoogleLogin
                               onSuccess={handleGoogleSuccess}
@@ -428,7 +428,7 @@ export default function LoginClient() {
                               theme="filled_blue"
                               shape="pill"
                               text="signin_with"
-                              width="100%"
+                              width="250"
                             />
                           </GoogleOAuthProvider>
                         </div>
