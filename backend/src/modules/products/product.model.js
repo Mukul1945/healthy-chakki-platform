@@ -8,11 +8,12 @@ const variantSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     category: {
       type: String,
       enum: ["ATTA", "MASALA", "HALDI", "SERVICE"],
       required: true,
+      index: true,
     },
     description: String,
     image: {
@@ -33,6 +34,9 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Add a text index for searching across name and description
+productSchema.index({ name: "text", description: "text" });
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;
