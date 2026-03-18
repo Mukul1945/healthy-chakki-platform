@@ -103,7 +103,7 @@ export default function LoginClient() {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   return (
-    <section className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <section className="min-h-screen relative overflow-x-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 w-64 h-64 bg-amber-600 rounded-full blur-3xl"></div>
@@ -418,18 +418,20 @@ export default function LoginClient() {
                     </div>
 
                     {/* Google Login Button */}
-                    <div className="flex flex-col items-center justify-center mb-6">
+                    <div className="flex flex-col items-center justify-center mb-6 w-full max-w-full overflow-hidden">
                       {clientId ? (
-                        <GoogleOAuthProvider clientId={clientId}>
-                          <GoogleLogin
-                            onSuccess={handleGoogleSuccess}
-                            onError={() => setError("Google Login Failed")}
-                            theme="filled_blue"
-                            shape="pill"
-                            text="signin_with"
-                            width="100%"
-                          />
-                        </GoogleOAuthProvider>
+                        <div className="w-full overflow-hidden flex justify-center px-1">
+                          <GoogleOAuthProvider clientId={clientId}>
+                            <GoogleLogin
+                              onSuccess={handleGoogleSuccess}
+                              onError={() => setError("Google Login Failed")}
+                              theme="filled_blue"
+                              shape="pill"
+                              text="signin_with"
+                              width="100%"
+                            />
+                          </GoogleOAuthProvider>
+                        </div>
                       ) : (
                         <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
                           <p className="text-sm text-amber-800 font-medium">Google Login is not configured.</p>
